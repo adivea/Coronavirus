@@ -1,0 +1,95 @@
+---
+title: "Plotting Coronavirus on maps and other charts"
+author: "Adela Sobotkova"
+date:  '`r format(Sys.Date(), "%Y-%B-%d")`'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# World Map
+
+Getting a plot of the world map is really simple. There are only three lines needed:
+
+
+```{r, warning=FALSE}
+require(nCov2019)
+x = get_nCov2019(lang='en')
+plot(x)
+```
+
+
+As you can see, the confirmed number of cases in China compared to everywhere else is scarily high. You may wonder now, is there a way to break down the cases in China? Of course, but you must first install chinamap, to get the map of China.
+
+```{r}
+remotes::install_github("GuangchuangYu/chinamap") # comment this segment after you have run it
+```
+
+After the installation, you can run the following code to see the confirmed cases across China.
+```{r}
+require(chinamap)
+cn = get_map_china()
+## translate province 
+cn$province <- trans_province(cn$province)
+plot(x, chinamap=cn)
+```
+You should now see that China is broken down to individual provinces. Note that the provinces must be translated like above in order for China to be colored.
+
+If the color red doesn’t suit you, you can feel free to change it using the palette argument:
+
+```{r, warning=FALSE}
+plot(x, chinamap=cn, palette="Purples")
+```
+
+## China Map
+To get a closer look at what the situation is in China, you can add a region = ‘china'argument to the plot. I recommend using font.size=2 so that the text of the provinces aren’t too large.
+```{r, warning=FALSE}
+plot(x, region='china', chinamap=cn, font.size=2)
+```
+
+
+
+
+# Supercool heatmap of the global situation in the last 7 days
+
+Here we will build an overview of the global landscape of coronavirus in one condensed tiled chart.
+First we prepare the data by selecting the global list from the historical nCov2019 package
+
+```{r prepping for tiled chart, warning=FALSE}
+library(ggplot2)
+y <- load_nCov2019(lang = 'en')
+d <- y['global']
+```
+
+Next, we limit the time to go back 7 days and filter out all missing values. We set the colors to change with exponential differences to counts and sort the countries by number of confirmed cases
+
+```{r tiled chart of confirmed cases}
+max_time <- max(d$time)
+min_time <- max_time - 7
+d <- na.omit(d[d$time >= min_time & d$time <= max_time,])  # we are selecting values in the last 7 days
+dd <- d[d$time == max(d$time, na.rm = TRUE),]
+d$country <- factor(d$country, 
+                    levels=dd$country[order(dd$cum_confirm)])   # we want countries sorted by number of cases
+breaks = c(10, 100, 1000, 10000)
+
+```
+
+Finally, we plot the result with geom_tile()
+```{r}
+ggplot(d, aes(time, country)) + 
+  geom_tile(aes(fill = cum_confirm), color = 'black') + 
+  scale_fill_viridis_c(trans = 'log', breaks = breaks, 
+                       labels = breaks) + 
+  xlab(NULL) + ylab(NULL) +
+  scale_x_date(date_labels = "%Y-%m-%d") + theme_minimal()
+```
+
+You can also view the chart for the healed or dead and extend the time horizon as you wish.
+
+
+# Homework
+Task 1 - can you download a map of Denmark and its provinces and plot the confirmed cases across Denmark similar to the China map example? Hint: do some searches on Github (https://github.com/sebastianbarfort/mapDK)
+
+Task 2 -  can you create a heatmap of deaths due to covid across the world?

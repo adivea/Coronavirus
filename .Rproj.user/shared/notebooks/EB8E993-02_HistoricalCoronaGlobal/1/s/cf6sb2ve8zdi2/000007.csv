@@ -1,0 +1,6 @@
+"0","ggplot(nochina, aes(time, as.numeric(cum_confirm), group=country, color=country)) +"
+"0","  geom_point() + geom_line() +"
+"0","  geom_label_repel(aes(label=country), data=nochina[nochina$time == time(y), ], hjust=0) +"
+"0","  theme_minimal(base_size = 14) + theme(legend.position='none') +"
+"0","  xlab(NULL) + ylab(NULL)+"
+"0","  labs(title= ""Growth curve of confirmed cases excepting China"")"

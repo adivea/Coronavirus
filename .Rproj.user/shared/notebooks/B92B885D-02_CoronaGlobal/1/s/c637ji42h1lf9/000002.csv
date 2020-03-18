@@ -1,0 +1,6 @@
+"0","ggplot(d, aes(time, country)) + "
+"0","  geom_tile(aes(fill = cum_confirm), color = 'black') + "
+"0","  scale_fill_viridis_c(trans = 'log', breaks = breaks, "
+"0","                       labels = breaks) + "
+"0","  xlab(NULL) + ylab(NULL) +"
+"0","  scale_x_date(date_labels = ""%Y-%m-%d"") + theme_minimal()"

@@ -1,0 +1,5 @@
+"0","globaldata %>% "
+"0","  filter(country == ""Germany"" | country == ""United Kingdom"" | country == ""Denmark"" | country == ""Switzerland"") %>% "
+"0","  ggplot(aes(time,as.numeric(cum_confirm))) + "
+"0","  geom_area() +"
+"0","  facet_wrap(~country)"

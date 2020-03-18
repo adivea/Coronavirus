@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1583498205418.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "65462F14",
+    "lastKnownWriteTime" : 1584541456,
+    "last_content_update" : 1584541456243,
+    "path" : "~/Documents/RStudio/1_Teaching/Coronavirus/Corona.R",
+    "project_path" : "Corona.R",
+    "properties" : {
+        "cursorPosition" : "107,5",
+        "scrollLine" : "103",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

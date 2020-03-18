@@ -1,0 +1,5 @@
+"0","max_time <- max(some_countries$time) # max_time is 2020-03-16"
+"0","min_time <- max_time - 7"
+"0","sc <- na.omit(some_countries[some_countries$time >= min_time & some_countries$time <= max_time,]) "
+"0","ggplot(sc, aes(x = time, y = as.numeric(cum_confirm), fill = country)) + "
+"0","  geom_bar(stat = ""identity"", position = ""dodge"")"

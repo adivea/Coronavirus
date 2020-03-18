@@ -1,0 +1,2 @@
+"0","DK <- which(some_countries$country== ""Denmark"")"
+"0","some_countries[c(DK),]"

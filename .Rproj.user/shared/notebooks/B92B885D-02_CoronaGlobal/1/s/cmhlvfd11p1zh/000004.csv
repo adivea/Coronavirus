@@ -1,0 +1,7 @@
+"0","y <- load_nCov2019(lang='en')"
+"2","strings not representable in native encoding will be translated to UTF-8"
+"2","strings not representable in native encoding will be translated to UTF-8"
+"2","strings not representable in native encoding will be translated to UTF-8"
+"2","strings not representable in native encoding will be translated to UTF-8"
+"0","globaldata <- y['global',]"
+"0","head(globaldata)"

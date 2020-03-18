@@ -1,0 +1,5 @@
+"0","library(ggplot2)"
+"0","ggplot(summary(x), aes(as.Date(date, ""%m.%d""), as.numeric(confirm))) +"
+"0","  geom_col(fill='firebrick') + theme_minimal(base_size = 14) +"
+"0","  xlab(NULL) + ylab(NULL) + "
+"0","  labs(caption = paste(""accessed date:"", time(x)))"

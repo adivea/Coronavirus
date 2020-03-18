@@ -1,0 +1,83 @@
+---
+title: "Coronavirus Historical Data - China and its provinces"
+author: "Adela Sobotkova"
+date: "18 March 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Part II — Historical Data
+
+Part One was only able to show the newest and latest data, but what most people are really concerned about are the daily historical data, the so called time-series.
+What if you want to analyze some detailed historical data? Fear not, 'r load_nCov2019()' is here to the rescue.
+
+```{r historical, warning=FALSE}
+library(nCov2019)
+y <- load_nCov2019(lang='en')
+y
+# nCov2019 historical data 
+# last update: 2020-02-07
+```
+
+## Historical Data for China
+Using the same method as 'r get_nCov2019()' , we can query all provincial detailed data using []
+
+```{r historical China}
+head(y[c(1:6, 9:11)])
+```
+
+We can just select the cumulative and newly added data. The relevant columns are 'r province, city, time, cum_confirm, cum_heal, cum_dead, confirm, dead, heal' , so 'r x['Hubei', c(1:6,9:11)]' is sufficient.
+
+## Provincial & City Details in China
+Similar to the above, if you wanted to dig deeper to get provincial-specific data, then you just need to include the province name:
+```{r historical Chinese provinces}
+head(y['Hubei',]) # replace Hubei with any province
+```
+
+
+If you want to dig even deeper into city-specific data, then you can specify a city within the province. For example, if you wanted to look at the data for Wuhan, you would do the following:
+```{r historical Chinese cities}
+head(subset(y['Hubei',], city == "Wuhan"))
+```
+
+You can then use this data for visualizations. For example:
+
+# Plot individual cities
+Here is a nice plot showing the rates of confirmed case in individual cities in the Anhui province. 'r ggrepel' makes sure the labels are not cluttered and read nicely. 
+```{r plot historical Chinese cities}
+library(ggplot2)
+require(ggrepel)
+d <- y['Anhui',] # replace Anhui with any province
+ggplot(d, aes(time, as.numeric(cum_confirm), group=city, color=city)) +
+  geom_point() + geom_line() +
+  geom_label_repel(aes(label=city), data=d[d$time == time(y), ], hjust=1) +
+  theme_minimal(base_size = 14) + theme(legend.position='none') +
+  xlab(NULL) + ylab(NULL)
+```
+
+# Summary Results of China
+Similar to 'r get_nCov2019()' , you are also able to call the 'r summary()' function on the historical data.
+```{r summary}
+head(summary(y)[,1:5])
+```
+
+Here's another quick visualisation of historical trends per province
+```{r}
+ggplot(summary(y, 'Hubei'), aes(time, as.numeric(cum_confirm))) +
+  geom_col()
+```
+or city-specific
+```{r}
+ggplot(subset(y['Hubei',], city == "Huanggang"), aes(time, as.numeric(cum_confirm))) + geom_col()
+```
+
+
+
+# Bibliography and other resources
+If you use 'r nCov2019' package, please cite the following preprint:
+
+Tianzhi Wu, Erqiang Hu, Xijin Ge*, Guangchuang Yu*. Open-source analytics tools for studying the COVID-19 coronavirus outbreak. medRxiv, 2020.02.25.20027433. doi: https://doi.org/10.1101/2020.02.25.20027433

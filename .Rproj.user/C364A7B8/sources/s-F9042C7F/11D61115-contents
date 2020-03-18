@@ -1,0 +1,127 @@
+---
+title: "Coronavirus Current Data"
+author: "Adela Sobotkova"
+date: "17 March 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Coronavirus
+
+Coronaviruses (CoV) are a large family of viruses that cause illness ranging from the common cold to more severe diseases such as Middle East Respiratory Syndrome (MERS-CoV) and Severe Acute Respiratory Syndrome (SARS-CoV). A novel coronavirus (nCoV) is a new strain that has not been previously identified in humans.
+This post is based on a blog post from Guangchuang Yu, a professor of bioinformatics at Southern Medical University, about an R package <https://github.com/GuangchuangYu/nCov2019> that contains one of the most up-to-date nCov data in China and all over the world. Patrick Tung has been translating this package from Chinese into English so that it is more accessible to everyone.
+
+<https://towardsdatascience.com/an-r-package-to-explore-the-novel-coronavirus-590055738ad6>
+
+# Quickstart
+To start off, you can easily install by running the following 'r nCov2019' package in R (uncomment/remove the hashtag for the block to run):
+
+```{r install}
+# remotes::install_github("GuangchuangYu/nCov2019")
+```
+
+To get the latest data, you can load it in with 'get_nCov2019()'.
+
+```{r library, warning=FALSE}
+library(tidyverse)
+library(nCov2019)
+x <- get_nCov2019(lang='en')
+```
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that attached the library and created the x digital object.
+
+Make sure that you include the argument 'r lang='en'' , otherwise, the data defaults to Chinese (which is fine if you can read Chinese).
+
+
+## Check the data
+If you print the data, it will show the total number of confirmed cases in China, as well as the latest updated time:
+```{r}
+x
+# China (total confirmed cases): 40235  
+# last update: 2020-02-10 15:12:35
+# your dates will differ dependin on when you ran it
+```
+This data is collected from Tencent, at https://news.qq.com/zt2020/page/feiyan.htm, which contains one of the most up-to-date public information of the coronavirus.
+
+## Global data
+To look at the global data, you can run the code 'r x['global', ]':
+
+```{r}
+x['global', ]
+```
+## Provincial & City Data in China
+Because the data source focuses mainly on China, you have the ability to really dig deep into the cases in China. For example, you have the ability to see the number of confirmed cases in a particular city in Sichuan.
+You can view provincial data within China by running 'r x[]' .
+
+```{r}
+x[]
+```
+
+If you wanted to obtain the data on an even more granular scale, you could go into each province and get the data broken down into cities. For example, if you wanted to see the cases within the Hubei province, you could use 'r x[1,]' or 'r x['Hubei',]' .
+
+```{r}
+x['Hubei', ] # replace Hubei with any province
+```
+
+Of course, it’s also possible to use this data for visualization. So here’s a quick example for Anhui.
+```{r}
+library(forcats)
+library(ggplot2)
+d = x['Anhui',] # replace Anhui with any province
+d$confirm=as.numeric(d$confirm)
+d$name = fct_reorder(d$name, d$confirm)
+ggplot(d, aes(name, confirm)) + 
+  geom_col(fill='steelblue') + coord_flip() +
+  geom_text(aes(y = confirm+2, label=confirm), hjust=0) +
+  theme_minimal(base_size=14) + 
+  scale_y_continuous(expand=c(0,10)) +
+  xlab(NULL) + ylab(NULL)
+```
+
+## Daily Data
+You’ve seen how to obtain total cumulative data up above, but what if you were interested viewing the number of newly added cases? Well, one way of doing this is to use the argument 'r by='today'' . To view the numbers for newly added in all provinces of China, you could run the following:
+
+```{r}
+head(x[by='today'], 10)
+```
+
+Similarly, to get a more granular view of them, you could get the data by running:
+
+```{r}
+x['Hubei', by='today']
+```
+
+## Summary of Daily Data
+
+To get a cumulative summary of the daily data, you could use the summary function on x .
+
+```{r}
+summary(x)
+```
+Similarly, if you wanted to view the new daily cases, you could use the today argument:
+```{r}
+summary(x, by="today")
+```
+
+## Make a plot
+If you wanted to visualize the cumulative summary data, an example plot could be the following:
+
+```{r}
+library(ggplot2)
+ggplot(summary(x), aes(as.Date(date, "%m.%d"), as.numeric(confirm))) +
+  geom_col(fill='firebrick') + theme_minimal(base_size = 14) +
+  xlab(NULL) + ylab(NULL) + 
+  labs(caption = paste("accessed date:", time(x)))
+```
+
+
+# Bibliography and other resources
+If you use nCov2019, please cite the following preprint:
+
+Tianzhi Wu, Erqiang Hu, Xijin Ge*, Guangchuang Yu*. Open-source analytics tools for studying the COVID-19 coronavirus outbreak. medRxiv, 2020.02.25.20027433. doi: https://doi.org/10.1101/2020.02.25.20027433
+
+ http://paulamoraga.com/coronavirus/
+ https://data.humdata.org/dataset/novel-coronavirus-2019-ncov-cases
+ https://paula-moraga.github.io/book-geospatial

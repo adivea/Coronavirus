@@ -1,0 +1,174 @@
+---
+title: "Coronavirus Historical Data - Global trends"
+author: "Adela Sobotkova"
+date: "17 March 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Let's look at Europe and the rest of the World
+
+We can select the 'global' component of the nCov2019 list and explore how the rest of the world is faring in the virus onslaught. Eventually, we might need to remove China, and modify the plot scripts slightly to get an idea of where different European countries stand. 
+
+First, we'll need some libraries
+
+```{r}
+library(tidyverse)
+library(ggrepel)
+library(nCov2019)
+```
+
+## Grab the historical global data
+Let's remind ourselves where we can find the 'global' data in teh ncov2019 package
+```{r historical global data, echo = FALSE}
+y <- load_nCov2019(lang='en')
+globaldata <- y['global',]
+head(globaldata)
+
+```
+
+
+## Plot the curves for different countries
+And now, lets reuse a plot from the previous exercise
+
+```{r global covid}
+library(ggrepel)
+ggplot(globaldata, aes(time, as.numeric(cum_confirm), group=country, color=country)) +
+  geom_point() + geom_line() +
+  geom_label_repel(aes(label=country), data=globaldata[globaldata$time == time(y), ], hjust=0) +
+  theme_minimal(base_size = 14) + theme(legend.position='none') +
+  xlab(NULL) + ylab(NULL)+
+  labs(title = "Growth curve of confirmed cases across the world")
+```
+
+This is a bit messy and unreadable despite the repelled labels. China clearly rules and the rest is unreadable. We need to filter the noise away. 
+
+Try to remove China and plot the remaining countries after some creative filtering, maybe by the number of confirmed cases, to make the graph more clear. A good start may be to filter for only those countries that exceed 100 confirmed cases.
+
+```{r China out}
+library(tidyverse)
+nochina <- globaldata %>% filter(country != "China" & cum_confirm > 100) 
+tail(nochina)
+```
+
+```{r global covid spread}
+ggplot(nochina, aes(time, as.numeric(cum_confirm), group=country, color=country)) +
+  geom_point() + geom_line() +
+  geom_label_repel(aes(label=country), data=nochina[nochina$time == time(y), ], hjust=0) +
+  theme_minimal(base_size = 14) + theme(legend.position='none') +
+  xlab(NULL) + ylab(NULL)+
+  labs(title= "Growth curve of confirmed cases excepting China")
+```
+
+It is still a bit messy, maybe we need to go up to 1000 confirmed cases. Try is as homework.
+
+## Explore: European countries and their responses to covid
+
+Different European countries have approached the threat of coronavirus differently. Switzerland announced business as usual and focused on the secluding of vulnerable groups (seniors, individuals with underlying disease only. Other countries, such as Singapore, Denmark, and the Czech Republic reacted with a broad and total shutdown. In Denmark and Cz lockdown started on Monday 16 March , while Singapore reacted much earlier due to exposure to China. 
+
+Task 1: What is the current number of confirmed cases in Singapore (as of 16 March 2020)? 
+Task 2: Wow are the aggressive measures working in DK and CZ after 12 and 16 March respectively? How do they compare to Switzerland and United Kingdom with their more relaxes measures?
+
+Remember, compliance is always an issue. In Denmark, govenrment action was amplified by public reaction, as general populace demonstrated great discipline and quit work already on Friday 12 March. In CZ the compliance is notably worse. The corresponding trends in the spread are instructive.
+
+
+```{r some countries, warning=FALSE}
+countries <- c("Switzerland", "United Kingdom", "Germany", "United States", "Denmark", "Czech Republic")
+
+some_countries <- globaldata %>% filter(country==countries)
+
+```
+
+And plot these countries
+```{r plot countries}
+ggplot(some_countries, aes(time,as.numeric(cum_confirm))) + 
+  geom_area() +
+  facet_wrap(~country)
+```
+
+This is ok as an overview, but we want to see which country has what trend in the last 7 days. Can we restrict the time interval and get better idea of the slope of the curve?
+
+
+Let's see what dates are available in the historical global dataset
+```{r}
+unique(some_countries$time)
+```
+
+Would barplot work?
+
+```{r}
+max_time <- max(some_countries$time) # max_time is 2020-03-16
+min_time <- max_time - 7
+sc <- na.omit(some_countries[some_countries$time >= min_time & some_countries$time <= max_time,]) 
+ggplot(sc, aes(x = time, y = as.numeric(cum_confirm), fill = country)) + 
+  geom_bar(stat = "identity", position = "dodge")
+```
+
+Some countries have not reported data on all the days, hence the gaps.
+
+Would area chart work better?
+
+```{r}
+ggplot(sc, aes(x = time, y = as.numeric(cum_confirm), fill = country)) + 
+  geom_area(position = "identity")
+```
+That is even worse. Maybe old-fashioned lines would work?
+
+```{r}
+ggplot(sc, aes(x = time, y = as.numeric(cum_confirm), col = country)) + 
+  geom_point()+
+  geom_line()+
+  #geom_area(position = "identity")
+  labs(colour = "country")
+```
+
+Where is Denmark? Can you tell me what is the problem with Danish datapoints?
+
+```{r}
+DK <- which(some_countries$country== "Denmark")
+some_countries[c(DK),]
+```
+
+
+
+## Which plot works the best?
+
+Review the charts above and adjust them to best represent the situation. 
+
+ 
+
+# Homework
+Task 1: Use the geom_col to plot the curves for Germany, Denmark and Switzerland and discuss the trends relative to individual country policies (not)implemented between 11-16 March.
+
+Solution:
+
+```{r}
+globaldata %>% 
+  filter(country == "Germany" | country == "United Kingdom" | country == "Denmark" | country == "Switzerland") %>% 
+  #filter(time)
+  ggplot(aes(time,as.numeric(cum_confirm))) + 
+  geom_area() +
+  facet_wrap(~country)
+
+
+```
+
+Task 2: Clean the global point chart for 16 February - 16 March above filtering for countries with a 1000 cases. How does the different slope of the curves translate into how controlled/uncontrolled the spread is?
+Task 3: Use the plot in Task 2 and display deaths from coronavirus in the global dataset excluding China 
+
+Solution:
+
+```{r}
+library(ggplot2)
+library(ggrepel)
+d <- globaldata %>% filter(cum_confirm > 1000 & country != "China")
+ggplot(d, aes(time, as.numeric(cum_confirm), group=country, color=country)) +
+  geom_point() + geom_line() +
+  geom_label_repel(aes(label=country), data=d[d$time == time(y), ], hjust=0) +
+  theme_minimal(base_size = 14) + theme(legend.position='none') +
+  xlab(NULL) + ylab(NULL)+
+  labs(title = "Growth curve in select countries")
+```

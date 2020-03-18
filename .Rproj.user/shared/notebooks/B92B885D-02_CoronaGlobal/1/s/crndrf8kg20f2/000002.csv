@@ -1,0 +1,7 @@
+"0","max_time <- max(d$time)"
+"0","min_time <- max_time - 7"
+"0","d <- na.omit(d[d$time >= min_time & d$time <= max_time,])  # we are selecting values in the last 7 days"
+"0","dd <- d[d$time == max(d$time, na.rm = TRUE),]"
+"0","d$country <- factor(d$country, "
+"0","                    levels=dd$country[order(dd$cum_confirm)])   # we want countries sorted by number of cases"
+"0","breaks = c(10, 100, 1000, 10000)"

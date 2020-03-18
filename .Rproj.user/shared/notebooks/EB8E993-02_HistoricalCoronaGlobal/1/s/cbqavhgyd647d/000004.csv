@@ -1,0 +1,2 @@
+"0","ggplot(sc, aes(x = time, y = as.numeric(cum_confirm), fill = country)) + "
+"0","  geom_area(position = ""identity"")"

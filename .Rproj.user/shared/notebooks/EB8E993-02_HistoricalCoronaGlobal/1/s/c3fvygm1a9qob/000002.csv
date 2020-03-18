@@ -1,0 +1,2 @@
+"0","countries <- c(""Switzerland"", ""United Kingdom"", ""Germany"", ""United States"", ""Denmark"", ""Czech Republic"")"
+"0","some_countries <- globaldata %>% filter(country==countries)"
